@@ -1,5 +1,6 @@
 package ru.gr0946x.ui;
 import ru.gr0946x.ui.painting.FractalPainter;
+import ru.gr0946x.ui.animation.TourWindow;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -96,7 +97,10 @@ public class MenuManager {
         JMenu fractalMenu = new JMenu("Фрактал");
 
         JMenuItem tourItem = new JMenuItem("Экскурсия по фракталу");
-        tourItem.addActionListener(this::showNotImplementedMessage);
+        tourItem.addActionListener(e -> {
+            TourWindow w = new TourWindow(painter);
+            w.setVisible(true);
+        });
         fractalMenu.add(tourItem);
 
         menuBar.add(fractalMenu);

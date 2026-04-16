@@ -15,10 +15,12 @@ public class SelectablePanel extends PaintPanel{
     private Point rightButtonStartPos = null;
     private Point rightButtonCurrentPos = null;
     private boolean isRightDragging = false;
+    private Point mousePressPoint = null; // Для отслеживания кликов
 
     private final Converter converter;
 
     private final ArrayList<SelectListener> selectHandlers = new ArrayList<>();
+    private final ArrayList<Runnable> clickHandlers = new ArrayList<>(); // Обработчики кликов
 
     private final double origXMin;
     private final double origXMax;
@@ -39,6 +41,14 @@ public class SelectablePanel extends PaintPanel{
 
     public void removeSelectListener(SelectListener listener){
         selectHandlers.remove(listener);
+    }
+
+    public void addClickListener(Runnable listener){
+        clickHandlers.add(listener);
+    }
+
+    public void removeClickListener(Runnable listener){
+        clickHandlers.remove(listener);
     }
 
     public SelectablePanel(Painter painter, Converter converter) {
@@ -62,6 +72,7 @@ public class SelectablePanel extends PaintPanel{
             @Override
             public void mousePressed(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1) {
+                    mousePressPoint = e.getPoint(); // Запоминаем точку нажатия
                     rect = new SelectedRect(e.getX(), e.getY());
                     paintSelectedRect();
                 } else if (e.getButton() == MouseEvent.BUTTON3) {
@@ -75,7 +86,24 @@ public class SelectablePanel extends PaintPanel{
             public void mouseReleased(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1) {
                     paintSelectedRect();
-                    if (rect != null) {
+
+                    // Проверяем, был ли это клик (без перетаскивания)
+                    boolean wasClick = false;
+                    if (rect != null && mousePressPoint != null) {
+                        double dist = e.getPoint().distance(mousePressPoint);
+                        // Если расстояние меньше 5 пикселей - считаем кликом
+                        if (dist < 5 && rect.getWidth() < 5 && rect.getHeight() < 5) {
+                            wasClick = true;
+                        }
+                    }
+
+                    if (wasClick) {
+                        // Это клик - вызываем обработчики клика
+                        for (var handler : clickHandlers) {
+                            handler.run();
+                        }
+                    } else if (rect != null && rect.getWidth() > 0 && rect.getHeight() > 0) {
+                        // Это выделение области - вызываем обработчики выделения
                         for (var handler : selectHandlers) {
                             handler.onSelect(new Rectangle(
                                     rect.getUpperLeft().x,
@@ -84,8 +112,10 @@ public class SelectablePanel extends PaintPanel{
                                     rect.getHeight()
                             ));
                         }
-                        rect = null;
                     }
+
+                    rect = null;
+                    mousePressPoint = null;
                 } else if (e.getButton() == MouseEvent.BUTTON3 && rightButtonStartPos != null) {
                     isRightDragging = false;
                     // Стираем линию
@@ -199,6 +229,9 @@ public class SelectablePanel extends PaintPanel{
 
 
     public void applyZoom(double xMin, double xMax, double yMin, double yMax) {
+        if (Math.abs(xMax - xMin) < 1e-10 || Math.abs(yMax - yMin) < 1e-10) {
+            return;
+        }
         converter.setXShape(xMin, xMax);
         converter.setYShape(yMin, yMax);
         currentXMin = xMin;

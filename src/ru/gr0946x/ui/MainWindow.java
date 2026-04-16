@@ -22,8 +22,6 @@ public class MainWindow extends JFrame {
     private final Converter conv;
     private final MenuManager menuManager;
 
-    private Point mousePressPoint = null;
-
     public MainWindow() {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setMinimumSize(new Dimension(800, 650));
@@ -42,6 +40,7 @@ public class MainWindow extends JFrame {
         mainPanel = new SelectablePanel(painter, conv);
         mainPanel.setBackground(Color.WHITE);
 
+        // Обработчик выделения области (приближение)
         mainPanel.addSelectListener((r) -> {
             var xMin = conv.xScr2Crt(r.x);
             var xMax = conv.xScr2Crt(r.x + r.width);
@@ -50,34 +49,19 @@ public class MainWindow extends JFrame {
             mainPanel.applyZoom(xMin, xMax, yMin, yMax);
         });
 
-        // 🔍 Отслеживание клика для открытия окна Жюлиа
-        mainPanel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON1) {
-                    mousePressPoint = e.getPoint();
-                }
-            }
+        mainPanel.addClickListener(() -> {
 
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON1 && mousePressPoint != null) {
-                    double dist = e.getPoint().distance(mousePressPoint);
-                    if (dist < 5) { // Клик (выделение не производилось)
-                        double cX = conv.xScr2Crt(e.getX());
-                        double cY = conv.yScr2Crt(e.getY());
-                        Complex c = new Complex(cX, cY);
+            double cX = conv.getXMin() + (conv.getXMax() - conv.getXMin()) / 2;
+            double cY = conv.getYMin() + (conv.getYMax() - conv.getYMin()) / 2;
 
-                        SwingUtilities.invokeLater(() -> {
-                            JuliaWindow juliaWindow = new JuliaWindow(c, "Множество Жюлиа");
-                            juliaWindow.setSize(800, 650);
-                            juliaWindow.setLocationRelativeTo(MainWindow.this);
-                            juliaWindow.setVisible(true);
-                        });
-                    }
-                    mousePressPoint = null;
-                }
-            }
+            Complex c = new Complex(cX, cY);
+
+            SwingUtilities.invokeLater(() -> {
+                JuliaWindow juliaWindow = new JuliaWindow(c, "Множество Жюлиа");
+                juliaWindow.setSize(800, 650);
+                juliaWindow.setLocationRelativeTo(MainWindow.this);
+                juliaWindow.setVisible(true);
+            });
         });
 
         menuManager = new MenuManager((FractalPainter) painter);
