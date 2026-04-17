@@ -251,8 +251,6 @@ public class MenuManager {
                     out.println("dynamicIterationsLastWidth=" + session.dynamicIterationsLastWidth);
                 }
 
-                JOptionPane.showMessageDialog(null, "Фрактал сохранён: " + file.getName());
-
             } catch (Exception e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(null, "Ошибка сохранения: " + e.getMessage(),
@@ -329,8 +327,6 @@ public class MenuManager {
                                 mainWindow.restoreFromSession(session);
                             }
                         }
-
-                        JOptionPane.showMessageDialog(null, "Фрактал загружен: " + file.getName());
 
                     } catch (Exception ex) {
                         ex.printStackTrace();

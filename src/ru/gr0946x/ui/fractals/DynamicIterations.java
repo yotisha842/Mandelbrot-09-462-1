@@ -2,11 +2,13 @@ package ru.gr0946x.ui.fractals;
 
 public class DynamicIterations {
     private static final double BASE_ITERATIONS = 100.0;
+    private static final double REFERENCE_WIDTH = 3.0;
+    private static final double ZOOM_FACTOR = 1.25;
     private static final int MIN_ITERATIONS = 50;
-    private static final int MAX_ITERATIONS = 2000;
+    private static final int MAX_ITERATIONS = 5000;
 
     private boolean enabled = false;
-    private double lastWidth = 4.0;
+    private double lastWidth = REFERENCE_WIDTH;
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
@@ -32,7 +34,10 @@ public class DynamicIterations {
         if (width <= 0) {
             return MAX_ITERATIONS;
         }
-        int result = (int) Math.round(BASE_ITERATIONS / width);
+
+        double zoomLevel = Math.log(REFERENCE_WIDTH / width) / Math.log(2);
+        int result = (int) Math.round(BASE_ITERATIONS * Math.pow(ZOOM_FACTOR, zoomLevel));
+
         result = Math.max(MIN_ITERATIONS, result);
         result = Math.min(MAX_ITERATIONS, result);
         return result;
