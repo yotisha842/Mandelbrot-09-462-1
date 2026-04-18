@@ -9,7 +9,7 @@ import java.awt.event.ComponentEvent;
 
 public class PaintPanel extends JPanel {
 
-    private Painter painter;
+    protected Painter painter;
     public PaintPanel(Painter painter){
         this.painter = painter;
         addComponentListener(new ComponentAdapter() {
@@ -28,6 +28,4 @@ public class PaintPanel extends JPanel {
         super.paint(g);
         painter.paint(g);
     }
-
-
 }
