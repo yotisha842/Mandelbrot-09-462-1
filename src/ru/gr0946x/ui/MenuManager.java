@@ -114,9 +114,22 @@ public class MenuManager {
         menuBar.add(viewMenu);
 
         JMenu fractalMenu = new JMenu("Фрактал");
+
         JMenuItem tourItem = new JMenuItem("Экскурсия по фракталу");
-        tourItem.addActionListener(this::showNotImplementedMessage);
+        tourItem.addActionListener(e -> {
+            if (painter instanceof ru.gr0946x.ui.painting.FractalPainter) {
+                new ru.gr0946x.ui.animation.TourWindow(
+                        (ru.gr0946x.ui.painting.FractalPainter) painter
+                ).setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(null,
+                        "Экскурсия доступна только для фракталов",
+                        "Информация",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
         fractalMenu.add(tourItem);
+
         menuBar.add(fractalMenu);
 
         return menuBar;
