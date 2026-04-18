@@ -2,7 +2,6 @@ package ru.gr0946x.ui.fractals;
 
 import ru.smak.math.Complex;
 
-import static java.lang.Math.max;
 import static java.lang.Math.sqrt;
 
 public class Mandelbrot implements Fractal{

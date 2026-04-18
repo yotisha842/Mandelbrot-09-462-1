@@ -9,8 +9,6 @@ import ru.smak.math.Complex;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 import static java.lang.Math.*;
 
@@ -40,7 +38,6 @@ public class MainWindow extends JFrame {
         mainPanel = new SelectablePanel(painter, conv);
         mainPanel.setBackground(Color.WHITE);
 
-        // Обработчик выделения области (приближение)
         mainPanel.addSelectListener((r) -> {
             var xMin = conv.xScr2Crt(r.x);
             var xMax = conv.xScr2Crt(r.x + r.width);

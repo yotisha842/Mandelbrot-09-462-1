@@ -17,6 +17,8 @@ public class TourWindow extends JFrame {
     private final DefaultListModel<String> listModel = new DefaultListModel<>();
     private final JList<String> frameList = new JList<>(listModel);
 
+    private final JSpinner durationSpinner;
+
     public TourWindow(FractalPainter originalPainter) {
 
         setTitle("Экскурсия по фракталу");
@@ -47,24 +49,28 @@ public class TourWindow extends JFrame {
             fractalPanel.repaint();
         });
 
-        JPanel rightPanel = new JPanel();
-        rightPanel.setLayout(new BorderLayout());
+        JPanel rightPanel = new JPanel(new BorderLayout());
 
         JPanel controls = new JPanel();
         controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
 
-        JButton addBtn = new JButton("Добавить кадр");
-        JButton removeBtn = new JButton("Удалить кадр");
-        JButton renderBtn = new JButton("Создать видео");
+        JLabel infoLabel = new JLabel("<html>Длительность перехода к следующему кадру.");
 
-        JSpinner durationSpinner = new JSpinner(
+        durationSpinner = new JSpinner(
                 new SpinnerNumberModel(2.0, 0.1, 60.0, 0.1)
         );
 
-        controls.add(new JLabel("Длительность (сек):"));
+        JButton addBtn = new JButton("Добавить кадр");
+        JButton removeBtn = new JButton("Удалить кадр");
+        JButton updateBtn = new JButton("Изменить длительность");
+        JButton renderBtn = new JButton("Создать видео");
+
+        controls.add(infoLabel);
+        controls.add(Box.createVerticalStrut(5));
         controls.add(durationSpinner);
         controls.add(Box.createVerticalStrut(10));
         controls.add(addBtn);
+        controls.add(updateBtn);
         controls.add(removeBtn);
         controls.add(renderBtn);
 
@@ -83,14 +89,32 @@ public class TourWindow extends JFrame {
             );
 
             frames.add(kf);
-            listModel.addElement("Кадр " + frames.size());
+            refreshList();
         });
 
         removeBtn.addActionListener(e -> {
             int i = frameList.getSelectedIndex();
             if (i >= 0) {
                 frames.remove(i);
-                listModel.remove(i);
+                refreshList();
+            }
+        });
+
+        updateBtn.addActionListener(e -> {
+            int i = frameList.getSelectedIndex();
+            if (i >= 0) {
+                double newDuration = (double) durationSpinner.getValue();
+
+                KeyFrame old = frames.get(i);
+
+                KeyFrame updated = new KeyFrame(
+                        old.xMin, old.xMax,
+                        old.yMin, old.yMax,
+                        newDuration
+                );
+
+                frames.set(i, updated);
+                refreshList();
             }
         });
 
@@ -98,7 +122,10 @@ public class TourWindow extends JFrame {
             int i = frameList.getSelectedIndex();
             if (i >= 0) {
                 KeyFrame k = frames.get(i);
+
                 fractalPanel.applyZoom(k.xMin, k.xMax, k.yMin, k.yMax);
+
+                durationSpinner.setValue(k.duration);
             }
         });
 
@@ -140,5 +167,20 @@ public class TourWindow extends JFrame {
         setLayout(new BorderLayout());
         add(fractalPanel, BorderLayout.CENTER);
         add(rightPanel, BorderLayout.EAST);
+    }
+
+    private void refreshList() {
+        listModel.clear();
+        for (int i = 0; i < frames.size(); i++) {
+            KeyFrame k = frames.get(i);
+            listModel.addElement(formatFrameName(i, k.duration));
+        }
+    }
+
+    private String formatFrameName(int index, double duration) {
+        if (index == frames.size() - 1) {
+            return "Кадр " + (index + 1) + " (последний)";
+        }
+        return "Кадр " + (index + 1) + " (" + duration + " сек →)";
     }
 }

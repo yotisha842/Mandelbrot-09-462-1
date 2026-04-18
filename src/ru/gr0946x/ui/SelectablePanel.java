@@ -15,12 +15,12 @@ public class SelectablePanel extends PaintPanel{
     private Point rightButtonStartPos = null;
     private Point rightButtonCurrentPos = null;
     private boolean isRightDragging = false;
-    private Point mousePressPoint = null; // Для отслеживания кликов
+    private Point mousePressPoint = null;
 
     private final Converter converter;
 
     private final ArrayList<SelectListener> selectHandlers = new ArrayList<>();
-    private final ArrayList<Runnable> clickHandlers = new ArrayList<>(); // Обработчики кликов
+    private final ArrayList<Runnable> clickHandlers = new ArrayList<>();
 
     private final double origXMin;
     private final double origXMax;
@@ -39,16 +39,8 @@ public class SelectablePanel extends PaintPanel{
         selectHandlers.add(listener);
     }
 
-    public void removeSelectListener(SelectListener listener){
-        selectHandlers.remove(listener);
-    }
-
     public void addClickListener(Runnable listener){
         clickHandlers.add(listener);
-    }
-
-    public void removeClickListener(Runnable listener){
-        clickHandlers.remove(listener);
     }
 
     public SelectablePanel(Painter painter, Converter converter) {
@@ -87,23 +79,19 @@ public class SelectablePanel extends PaintPanel{
                 if (e.getButton() == MouseEvent.BUTTON1) {
                     paintSelectedRect();
 
-                    // Проверяем, был ли это клик (без перетаскивания)
                     boolean wasClick = false;
                     if (rect != null && mousePressPoint != null) {
                         double dist = e.getPoint().distance(mousePressPoint);
-                        // Если расстояние меньше 5 пикселей - считаем кликом
                         if (dist < 5 && rect.getWidth() < 5 && rect.getHeight() < 5) {
                             wasClick = true;
                         }
                     }
 
                     if (wasClick) {
-                        // Это клик - вызываем обработчики клика
                         for (var handler : clickHandlers) {
                             handler.run();
                         }
                     } else if (rect != null && rect.getWidth() > 0 && rect.getHeight() > 0) {
-                        // Это выделение области - вызываем обработчики выделения
                         for (var handler : selectHandlers) {
                             handler.onSelect(new Rectangle(
                                     rect.getUpperLeft().x,
@@ -148,7 +136,6 @@ public class SelectablePanel extends PaintPanel{
                     }
                     paintSelectedRect();
                 } else if (SwingUtilities.isRightMouseButton(e) && isRightDragging) {
-                    // Стираем старую линию
                     if (g != null && rightButtonStartPos != null && rightButtonCurrentPos != null) {
                         g.setXORMode(Color.BLACK);
                         g.setColor(Color.WHITE);
@@ -157,7 +144,6 @@ public class SelectablePanel extends PaintPanel{
                         g.setPaintMode();
                     }
 
-                    // Рисуем новую линию
                     rightButtonCurrentPos = new Point(e.getX(), e.getY());
                     if (g != null && rightButtonStartPos != null) {
                         g.setXORMode(Color.BLACK);
