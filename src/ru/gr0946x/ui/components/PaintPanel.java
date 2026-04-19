@@ -1,12 +1,16 @@
-package ru.gr0946x.ui;
+package ru.gr0946x.ui.components;
 
-import ru.gr0946x.ui.painting.Painter;
+import ru.gr0946x.core.rendering.Painter;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
+/**
+ * JPanel-обёртка для отрисовки фрактала через интерфейс Painter.
+ * Автоматически синхронизирует размеры панели с Painter и перерисовывает при изменении окна.
+ */
 public class PaintPanel extends JPanel {
 
     protected Painter painter;

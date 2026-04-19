@@ -1,5 +1,9 @@
-package ru.gr0946x.ui.fractals;
+package ru.gr0946x.core.fractals;
 
+/**
+ * 🎚Адаптивный расчёт числа итераций в зависимости от уровня зума.
+ * Чем меньше область просмотра (шире зум) — тем больше итераций для детализации.
+ */
 public class DynamicIterations {
     private static final double BASE_ITERATIONS = 100.0;
     private static final double REFERENCE_WIDTH = 3.0;
@@ -12,6 +16,10 @@ public class DynamicIterations {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public void setLastWidth(double width) {
+        this.lastWidth = width;
     }
 
     public boolean isEnabled() {
@@ -41,13 +49,5 @@ public class DynamicIterations {
         result = Math.max(MIN_ITERATIONS, result);
         result = Math.min(MAX_ITERATIONS, result);
         return result;
-    }
-
-    public void setLastWidth(double width) {
-        this.lastWidth = width;
-    }
-
-    public void syncLastWidth(double width) {
-        this.lastWidth = width;
     }
 }

@@ -1,10 +1,15 @@
-package ru.gr0946x.ui;
+package ru.gr0946x.ui.components;
 
 import java.awt.*;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.min;
 
+/**
+ * Вспомогательный класс для отслеживания прямоугольника выделения мышью.
+ * Хранит начальную и текущую точки, вычисляет нормализованные параметры (левый-верхний угол, ширина, высота).
+ * Поддерживает выделение в любом направлении (влево/вправо/вверх/вниз).
+ */
 public class SelectedRect {
     private final int x1;
     private int x2;

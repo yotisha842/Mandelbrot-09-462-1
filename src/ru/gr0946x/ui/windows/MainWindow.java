@@ -1,9 +1,16 @@
-package ru.gr0946x.ui;
+package ru.gr0946x.ui.windows;
 
 import ru.gr0946x.Converter;
-import ru.gr0946x.ui.fractals.*;
-import ru.gr0946x.ui.painting.FractalPainter;
-import ru.gr0946x.ui.painting.Painter;
+import ru.gr0946x.core.fractals.DynamicIterations;
+import ru.gr0946x.core.fractals.Fractal;
+import ru.gr0946x.core.fractals.FractalConfig;
+import ru.gr0946x.core.fractals.Mandelbrot;
+import ru.gr0946x.core.model.FractalSession;
+import ru.gr0946x.core.rendering.ColorFunction;
+import ru.gr0946x.core.rendering.FractalPainter;
+import ru.gr0946x.core.rendering.Painter;
+import ru.gr0946x.ui.menus.MenuManager;
+import ru.gr0946x.ui.components.SelectablePanel;
 import ru.smak.math.Complex;
 
 import javax.swing.*;
@@ -13,6 +20,19 @@ import java.awt.event.MouseEvent;
 
 import static java.lang.Math.*;
 
+/**
+ * Главное окно приложения для просмотра множества Мандельброта.
+ *
+ * Функциональность:
+ * - Отображение фрактала через FractalPainter и SelectablePanel
+ * - Масштабирование выделением (ЛКМ), перемещение (ПКМ), отмена/повтор (Ctrl+Z/Y)
+ * - Переключение формул фракталов и цветовых схем через меню
+ * - Открытие окна множества Жюлиа по клику на точку
+ * - Сохранение/загрузка состояния через .frac-файлы
+ * - Адаптивное число итераций при зуме (DynamicIterations)
+ *
+ * Является точкой входа для пользовательского взаимодействия с приложением.
+ */
 public class MainWindow extends JFrame {
 
     private final SelectablePanel mainPanel;
@@ -125,6 +145,7 @@ public class MainWindow extends JFrame {
         SwingUtilities.invokeLater(() -> mainPanel.repaint());
     }
 
+    // Применяет новые настройки фрактала: формулу и цветовую схему.
     public void applySettings(int fIdx, int cIdx) {
         this.currentFractalIdx = fIdx;
         this.currentColorIdx = cIdx;
@@ -175,11 +196,11 @@ public class MainWindow extends JFrame {
             try {
                 java.lang.reflect.Field diField = SelectablePanel.class.getDeclaredField("dynamicIterations");
                 diField.setAccessible(true);
-                ru.gr0946x.ui.fractals.DynamicIterations di =
-                        (ru.gr0946x.ui.fractals.DynamicIterations) diField.get(mainPanel);
+                DynamicIterations di =
+                        (DynamicIterations) diField.get(mainPanel);
                 if (di != null) {
                     di.setEnabled(session.dynamicIterationsEnabled);
-                    di.syncLastWidth(session.dynamicIterationsLastWidth);
+                    di.setLastWidth(session.dynamicIterationsLastWidth);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

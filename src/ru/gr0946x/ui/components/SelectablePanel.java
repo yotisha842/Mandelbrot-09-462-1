@@ -1,8 +1,9 @@
-package ru.gr0946x.ui;
+package ru.gr0946x.ui.components;
 
 import ru.gr0946x.Converter;
-import ru.gr0946x.ui.fractals.DynamicIterations;
-import ru.gr0946x.ui.painting.Painter;
+import ru.gr0946x.core.fractals.DynamicIterations;
+import ru.gr0946x.core.rendering.FractalPainter;
+import ru.gr0946x.core.rendering.Painter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,6 +12,11 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 
+/**
+ * Панель для интерактивной работы с фракталом: выделение области (ЛКМ),
+ * перемещение (ПКМ), масштабирование, отмена/повтор действий.
+ * Наследует PaintPanel, добавляет обработку мыши, историю состояний и сохранение пропорций.
+ */
 public class SelectablePanel extends PaintPanel {
     private SelectedRect rect = null;
     private Graphics g;
@@ -45,6 +51,10 @@ public class SelectablePanel extends PaintPanel {
     private final Deque<ViewState> undoHistory = new ArrayDeque<>();
     private final Deque<ViewState> redoHistory = new ArrayDeque<>();
 
+    /**
+     * Неизменяемый снимок состояния просмотра фрактала.
+     * Используется для реализации undo/redo: сохраняет границы, размеры и ширину для итераций.
+     */
     private static class ViewState {
         double xMin;
         double xMax;
@@ -208,6 +218,7 @@ public class SelectablePanel extends PaintPanel {
         });
     }
 
+    // Создаёт снимок текущего состояния просмотра для истории.
     private ViewState createCurrentState() {
         return new ViewState(
                 currentXMin, currentXMax, currentYMin, currentYMax,
@@ -216,6 +227,7 @@ public class SelectablePanel extends PaintPanel {
         );
     }
 
+    // Добавляет состояние в историю с ограничением по размеру.
     private void pushWithLimit(Deque<ViewState> history, ViewState state) {
         if (history.size() >= MAX_HISTORY_STEPS) {
             history.removeFirst();
@@ -223,11 +235,13 @@ public class SelectablePanel extends PaintPanel {
         history.addLast(state);
     }
 
+    // Сохраняет текущее состояние в undo-историю и очищает redo.
     private void saveStateForUndo() {
         pushWithLimit(undoHistory, createCurrentState());
         redoHistory.clear();
     }
 
+    // Восстанавливает состояние из снимка ViewState.
     private void restoreState(ViewState state) {
         currentXMin = state.xMin; currentXMax = state.xMax;
         currentYMin = state.yMin; currentYMax = state.yMax;
@@ -272,6 +286,7 @@ public class SelectablePanel extends PaintPanel {
         restoreState(nextState);
     }
 
+    // Корректирует границы области для сохранения соотношения сторон панели.
     private void adjustBoundsForAspectRatio() {
         int width = getWidth();
         int height = getHeight();
@@ -319,6 +334,7 @@ public class SelectablePanel extends PaintPanel {
         currentYMax = newYMax;
     }
 
+    // Применяет масштабирование к выделенной области.
     public void applyZoom(double xMin, double xMax, double yMin, double yMax) {
         saveStateForUndo();
 
@@ -339,6 +355,7 @@ public class SelectablePanel extends PaintPanel {
         repaint();
     }
 
+    // Сдвигает отображаемую область фрактала на заданное смещение в пикселях.
     private void shiftFractal(int deltaX, int deltaY) {
         saveStateForUndo();
 
@@ -367,6 +384,8 @@ public class SelectablePanel extends PaintPanel {
         repaint();
     }
 
+    // Отрисовывает прямоугольник выделения в инвертированном режиме (XOR).
+    // Позволяет рисовать рамку поверх фрактала без перерисовки всего изображения.
     private void paintSelectedRect() {
         if (g != null && rect != null) {
             g.setXORMode(Color.WHITE);
@@ -380,10 +399,12 @@ public class SelectablePanel extends PaintPanel {
             g.setPaintMode();
         }
     }
+
+    // Заменяет текущий отрисовщик на новый.
     public void setPainter(Painter p) {
         this.painter = p;
 
-        if (p instanceof ru.gr0946x.ui.painting.FractalPainter) {
+        if (p instanceof FractalPainter) {
             p.setWidth(getWidth());
             p.setHeight(getHeight());
         }

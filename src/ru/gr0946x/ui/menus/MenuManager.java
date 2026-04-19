@@ -1,15 +1,18 @@
-package ru.gr0946x.ui;
-import ru.gr0946x.ui.painting.FractalPainter;
-import ru.gr0946x.ui.fractals.FractalSession;
-import ru.gr0946x.ui.fractals.Julia;
-import ru.gr0946x.ui.fractals.FractalConfig;
-import ru.gr0946x.ui.fractals.ColorFunction;
+package ru.gr0946x.ui.menus;
+import ru.gr0946x.core.fractals.DynamicIterations;
+import ru.gr0946x.core.rendering.FractalPainter;
+import ru.gr0946x.core.model.FractalSession;
+import ru.gr0946x.core.fractals.Julia;
+import ru.gr0946x.core.fractals.FractalConfig;
+import ru.gr0946x.core.rendering.ColorFunction;
+import ru.gr0946x.ui.components.SelectablePanel;
+import ru.gr0946x.ui.windows.TourWindow;
+import ru.gr0946x.ui.windows.MainWindow;
 import ru.smak.math.Complex;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -18,6 +21,19 @@ import java.util.Properties;
 import javax.imageio.ImageIO;
 import java.awt.Graphics2D;
 import java.awt.Color;
+
+/**
+ * Менеджер создания и обработки главного меню приложения.
+ *
+ * Отвечает за:
+ * - Создание JMenuBar с пунктами: Файл, Правка, Вид, Фрактал
+ * - Обработку сохранения/загрузки изображений (JPG/PNG) и сессий (.frac)
+ * - Переключение формул фракталов и цветовых схем через меню
+ * - Запуск окна "Экскурсия по фракталу"
+ * - Поддержку режимов: основное окно и окно множества Жюлиа
+ *
+ * Использует зависимости: FractalPainter, SelectablePanel, MainWindow.
+ */
 public class MenuManager {
     private final FractalPainter painter;
     private final SelectablePanel panel;
@@ -35,6 +51,7 @@ public class MenuManager {
         this.juliaMode = juliaMode;
     }
 
+    // Создаёт и настраивает JMenuBar со всеми пунктами меню.
     public JMenuBar createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
 
@@ -117,9 +134,9 @@ public class MenuManager {
 
         JMenuItem tourItem = new JMenuItem("Экскурсия по фракталу");
         tourItem.addActionListener(e -> {
-            if (painter instanceof ru.gr0946x.ui.painting.FractalPainter) {
-                new ru.gr0946x.ui.animation.TourWindow(
-                        (ru.gr0946x.ui.painting.FractalPainter) painter
+            if (painter != null) {
+                new TourWindow(
+                        (FractalPainter) painter
                 ).setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(null,
@@ -135,13 +152,7 @@ public class MenuManager {
         return menuBar;
     }
 
-    private void showNotImplementedMessage(ActionEvent e) {
-        JMenuItem source = (JMenuItem) e.getSource();
-        JOptionPane.showMessageDialog(null,
-                "Функция \"" + source.getText() + "\" будет реализована позже",
-                "Информация", JOptionPane.INFORMATION_MESSAGE);
-    }
-
+    // Сохраняет текущее изображение фрактала в файл указанного формата.
     private void saveImage(String format) {
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Сохранить изображение");
@@ -193,6 +204,7 @@ public class MenuManager {
 
     private void saveImageWithChoice() { saveImage(null); }
 
+    // Гарантирует, что файл имеет нужное расширение.
     private File ensureExtension(File file, String expectedExt) {
         String name = file.getName().toLowerCase();
         if (!name.endsWith("." + expectedExt.toLowerCase())) {
@@ -201,6 +213,7 @@ public class MenuManager {
         return file;
     }
 
+    // Сохраняет состояние фрактала в текстовый файл .frac (формат Properties).
     private void saveFractal() {
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Сохранить фрактал");
@@ -221,13 +234,11 @@ public class MenuManager {
 
                 if (juliaMode) {
                     session.type = "julia";
-                    if (painter instanceof FractalPainter) {
-                        java.lang.reflect.Field cField = Julia.class.getDeclaredField("c");
-                        cField.setAccessible(true);
-                        Complex c = (Complex) cField.get(((FractalPainter) painter).getFractal());
-                        session.juliaCRe = c.getReal();
-                        session.juliaCIm = c.getImaginary();
-                    }
+                    java.lang.reflect.Field cField = Julia.class.getDeclaredField("c");
+                    cField.setAccessible(true);
+                    Complex c = (Complex) cField.get(((FractalPainter) painter).getFractal());
+                    session.juliaCRe = c.getReal();
+                    session.juliaCIm = c.getImaginary();
                     session.fractalIdx = 0;
                     session.colorIdx = findColorIndex(painter.getColorFunction());
                 } else {
@@ -236,11 +247,11 @@ public class MenuManager {
                     session.colorIdx = mainWindow.getCurrentColorIdx();
                 }
 
-                if (panel instanceof SelectablePanel) {
+                if (panel != null) {
                     java.lang.reflect.Field diField = SelectablePanel.class.getDeclaredField("dynamicIterations");
                     diField.setAccessible(true);
-                    ru.gr0946x.ui.fractals.DynamicIterations di =
-                            (ru.gr0946x.ui.fractals.DynamicIterations) diField.get(panel);
+                    DynamicIterations di =
+                            (DynamicIterations) diField.get(panel);
                     if (di != null) {
                         session.dynamicIterationsEnabled = di.isEnabled();
                         session.dynamicIterationsLastWidth = di.getCurrentIterations();
@@ -273,6 +284,7 @@ public class MenuManager {
         }
     }
 
+    // Открывает файл .frac и восстанавливает состояние фрактала.
     private void openFractal() {
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Открыть фрактал");
@@ -310,7 +322,7 @@ public class MenuManager {
                                 Complex newC = new Complex(Double.parseDouble(cRe), Double.parseDouble(cIm));
                                 Julia newJulia = new Julia(newC);
 
-                                if (painter instanceof FractalPainter) {
+                                if (painter != null) {
                                     ((FractalPainter) painter).setFractal(newJulia);
                                     ((FractalPainter) painter).setColorFunction(FractalConfig.COLORS.get(colorIdx));
                                 }
@@ -318,14 +330,14 @@ public class MenuManager {
                                 painter.getConverter().setXShape(xMin, xMax);
                                 painter.getConverter().setYShape(yMin, yMax);
 
-                                if (panel instanceof SelectablePanel) {
+                                if (panel != null) {
                                     java.lang.reflect.Field diField = SelectablePanel.class.getDeclaredField("dynamicIterations");
                                     diField.setAccessible(true);
-                                    ru.gr0946x.ui.fractals.DynamicIterations di =
-                                            (ru.gr0946x.ui.fractals.DynamicIterations) diField.get(panel);
+                                    DynamicIterations di =
+                                            (DynamicIterations) diField.get(panel);
                                     if (di != null) {
                                         di.setEnabled(dynIterEnabled);
-                                        di.syncLastWidth(dynIterWidth);
+                                        di.setLastWidth(dynIterWidth);
                                     }
                                 }
                             }
@@ -357,6 +369,7 @@ public class MenuManager {
         }
     }
 
+    // Находит индекс цветовой схемы в FractalConfig.COLORS по ссылке на объект.
     private int findColorIndex(ColorFunction cf) {
         for (int i = 0; i < FractalConfig.COLORS.size(); i++) {
             if (FractalConfig.COLORS.get(i) == cf) {

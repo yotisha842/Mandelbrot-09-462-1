@@ -1,9 +1,12 @@
-package ru.gr0946x.ui.animation;
+package ru.gr0946x.ui.windows;
 
 import ru.gr0946x.Converter;
-import ru.gr0946x.ui.SelectablePanel;
-import ru.gr0946x.ui.painting.FractalPainter;
-import ru.gr0946x.ui.fractals.Mandelbrot;
+import ru.gr0946x.ui.components.SelectablePanel;
+import ru.gr0946x.core.rendering.FractalPainter;
+import ru.gr0946x.core.fractals.Mandelbrot;
+import ru.gr0946x.ui.animation.AnimationGenerator;
+import ru.gr0946x.ui.animation.KeyFrame;
+import ru.gr0946x.ui.animation.VideoExporter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,6 +14,17 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Окно создания анимированной "экскурсии" по фракталу.
+ *
+ * Функциональность:
+ * - Предпросмотр фрактала с возможностью масштабирования и навигации
+ * - Добавление/удаление/редактирование ключевых кадров (границы + длительность)
+ * - Визуальный список кадров с выбором для предпросмотра
+ * - Экспорт анимации в MP4-видео через AnimationGenerator + VideoExporter
+ *
+ * Использует независимый FractalPainter (не связан с главным окном).
+ */
 public class TourWindow extends JFrame {
 
     private final List<KeyFrame> frames = new ArrayList<>();
@@ -169,6 +183,7 @@ public class TourWindow extends JFrame {
         add(rightPanel, BorderLayout.EAST);
     }
 
+    // Обновляет содержимое списка кадров (JList) на основе текущего списка frames.
     private void refreshList() {
         listModel.clear();
         for (int i = 0; i < frames.size(); i++) {
@@ -177,6 +192,7 @@ public class TourWindow extends JFrame {
         }
     }
 
+    // Формирует отображаемое имя для ключевого кадра в списке.
     private String formatFrameName(int index, double duration) {
         if (index == frames.size() - 1) {
             return "Кадр " + (index + 1) + " (последний)";

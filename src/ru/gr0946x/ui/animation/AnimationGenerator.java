@@ -3,8 +3,14 @@ package ru.gr0946x.ui.animation;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Генератор кадров анимации по ключевым точкам.
+ * Принимает список ключевых кадров (KeyFrame) и частоту кадров (fps),
+ * возвращает полный список кадров с плавной интерполяцией между ключами.
+ */
 public class AnimationGenerator {
 
+    // Создаёт последовательность кадров для анимации между ключевыми точками.
     public static List<KeyFrame> generate(List<KeyFrame> keys, int fps) {
         List<KeyFrame> frames = new ArrayList<>();
 

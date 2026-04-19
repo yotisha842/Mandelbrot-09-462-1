@@ -1,12 +1,16 @@
 package ru.gr0946x.ui.animation;
 
 import org.jcodec.api.awt.AWTSequenceEncoder;
-import ru.gr0946x.ui.painting.FractalPainter;
+import ru.gr0946x.core.rendering.FractalPainter;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
 
+/**
+ * Экспорт анимации фрактала в видеофайл (MP4) через jcodec.
+ * Принимает список кадров, рендерит каждый через FractalPainter и кодирует в видео.
+ */
 public class VideoExporter {
 
     public static void export(

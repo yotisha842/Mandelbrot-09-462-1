@@ -1,10 +1,17 @@
-package ru.gr0946x.ui.fractals;
+package ru.gr0946x.core.fractals;
+
+import ru.gr0946x.core.rendering.ColorFunction;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import static java.lang.Math.*;
 
+/**
+ * Регистр доступных фракталов и цветовых схем.
+ * Хранит статические списки имён и реализаций, инициализирует их в статическом блоке.
+ * Предоставляет доступ к динамическому расчёту итераций.
+ */
 public class FractalConfig {
     public static final List<String> FRACTAL_NAMES = new ArrayList<>();
     public static final List<Fractal> FRACTALS = new ArrayList<>();

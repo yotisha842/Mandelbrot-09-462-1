@@ -1,5 +1,9 @@
 package ru.gr0946x.ui.animation;
 
+/**
+ * Утилитарный класс для линейной интерполяции (lerp) между ключевыми кадрами.
+ * Используется AnimationGenerator для создания промежуточных кадров анимации.
+ */
 public class FrameInterpolator {
 
     public static KeyFrame interpolate(KeyFrame a, KeyFrame b, double t) {

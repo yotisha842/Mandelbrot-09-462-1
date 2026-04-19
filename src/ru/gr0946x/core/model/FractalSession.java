@@ -1,8 +1,13 @@
-package ru.gr0946x.ui.fractals;
+package ru.gr0946x.core.model;
 
 import ru.smak.math.Complex;
 import java.io.Serializable;
 
+/**
+ * DTO для сохранения и восстановления состояния сессии фрактала.
+ * Реализует Serializable для записи в файл .frac.
+ * Хранит: тип фрактала, индексы настроек, границы области, параметр Жюлиа, настройки итераций.
+ */
 public class FractalSession implements Serializable {
     private static final long serialVersionUID = 1L;
 

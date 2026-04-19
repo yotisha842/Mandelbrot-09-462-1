@@ -1,14 +1,27 @@
-package ru.gr0946x.ui;
+package ru.gr0946x.ui.windows;
 
 import ru.gr0946x.Converter;
-import ru.gr0946x.ui.fractals.DynamicIterations;
-import ru.gr0946x.ui.fractals.Julia;
-import ru.gr0946x.ui.painting.FractalPainter;
+import ru.gr0946x.core.fractals.DynamicIterations;
+import ru.gr0946x.core.fractals.Julia;
+import ru.gr0946x.core.rendering.FractalPainter;
+import ru.gr0946x.ui.menus.MenuManager;
+import ru.gr0946x.ui.components.SelectablePanel;
 import ru.smak.math.Complex;
 
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Отдельное окно для отображения множества Жюлиа по заданному параметру c.
+ *
+ * Особенности:
+ * - Создаёт независимый FractalPainter с Julia-фракталом
+ * - Поддерживает масштабирование, сдвиг, отмену действий (через SelectablePanel)
+ * - Имеет собственное меню (через MenuManager в режиме juliaMode)
+ * - Использует общий DynamicIterations для синхронизации детализации с главным окном
+ *
+ * Закрывается независимо от главного окна.
+ */
 public class JuliaWindow extends JFrame {
     private final DynamicIterations dynamicIter;
     private final SelectablePanel juliaPanel;
@@ -21,7 +34,7 @@ public class JuliaWindow extends JFrame {
         this.dynamicIter = sharedDynamicIter;
 
         Converter conv = new Converter(-2.0, 1.0, -1.0, 1.0);
-        dynamicIter.syncLastWidth(conv.getXMax() - conv.getXMin());
+        dynamicIter.setLastWidth(conv.getXMax() - conv.getXMin());
 
         var julia = new Julia(c);
         julia.setDynamicIterations(dynamicIter);

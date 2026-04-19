@@ -1,5 +1,10 @@
 package ru.gr0946x.ui.animation;
 
+/**
+ * Неизменяемый ключевой кадр анимации фрактала.
+ * Хранит границы области комплексной плоскости и длительность кадра в секундах.
+ * Используется как точка привязки для генерации промежуточных кадров.
+ */
 public class KeyFrame {
     public final double xMin, xMax, yMin, yMax;
     public final double duration;

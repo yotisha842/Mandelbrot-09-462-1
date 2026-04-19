@@ -1,11 +1,15 @@
-package ru.gr0946x.ui.painting;
+package ru.gr0946x.core.rendering;
 import java.awt.image.BufferedImage;
 import ru.gr0946x.Converter;
-import ru.gr0946x.ui.fractals.ColorFunction;
-import ru.gr0946x.ui.fractals.Fractal;
+import ru.gr0946x.core.fractals.Fractal;
 
 import java.awt.*;
 
+/**
+ * 🖼Основной класс отрисовки фрактала.
+ * Реализует интерфейс Painter, использует Converter для преобразования координат
+ * и ColorFunction для расчёта цвета. Поддерживает многопоточное построение для экспорта.
+ */
 public class FractalPainter implements Painter{
 
     private Fractal fractal;
@@ -31,12 +35,23 @@ public class FractalPainter implements Painter{
         conv.setHeight(height);
     }
 
+    public Converter getConverter() {
+        return conv;
+    }
+    public void setColorFunction(ColorFunction colorFunction) { this.colorFunction = colorFunction; }
+    public Fractal getFractal() { return fractal; }
+    public ColorFunction getColorFunction() { return colorFunction; }
+    public void setFractal(Fractal fractal) {
+        this.fractal = fractal;
+    }
+
     public FractalPainter(Fractal f, Converter conv, ColorFunction cf){
         this.fractal = f;
         this.conv = conv;
         this.colorFunction = cf;
     }
 
+    // Построчная отрисовка фрактала на Graphics-контексте.
     @Override
     public void paint(Graphics g) {
         var w = getWidth();
@@ -52,6 +67,9 @@ public class FractalPainter implements Painter{
         }
     }
 
+    // Создаёт BufferedImage с фракталом с использованием многопоточности.
+    // Распределяет столбцы изображения между потоками по схеме:
+    // поток K обрабатывает столбцы K, K+procs, K+2*procs...
     public BufferedImage createImage() {
         int w = getWidth();
         int h = getHeight();
@@ -87,15 +105,5 @@ public class FractalPainter implements Painter{
         }
 
         return result;
-    }
-
-    public Converter getConverter() {
-        return conv;
-    }
-    public void setColorFunction(ColorFunction colorFunction) { this.colorFunction = colorFunction; }
-    public Fractal getFractal() { return fractal; }
-    public ColorFunction getColorFunction() { return colorFunction; }
-    public void setFractal(Fractal fractal) {
-        this.fractal = fractal;
     }
 }
